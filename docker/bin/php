@@ -1,0 +1,9 @@
+#!/bin/bash
+GID=$(id -g)
+DOCKER_COMPOSE_CMD="run --rm"
+PHP_SERVICE_ID=$(docker-compose ps -q php)
+if [ ! -z "$PHP_SERVICE_ID" ]; then
+    DOCKER_COMPOSE_CMD="exec"
+fi
+echo "Running PHP on Docker Compose Service \"php\"..."
+docker-compose $DOCKER_COMPOSE_CMD --user="$UID:$GID" php php $@

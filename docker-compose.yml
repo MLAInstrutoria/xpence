@@ -1,0 +1,40 @@
+version: "3"
+
+services:
+    # PHP 7.2 fpm with Laravel Installer and Tools (PHPUnit, PHPMD, PHP Code Sniffer and PHP Stan)
+    # Docs: https://hub.docker.com/r/mlalbuquerque/php-containers/
+    php:
+        image: mlalbuquerque/php-containers:7.2-tools
+        volumes:
+            - "./src:/var/www/html"
+            - "./docker/logs:/var/log"
+            - "./docker/config/php.ini:/usr/local/etc/php/php.ini"
+            - "./docker/config/xdebug.ini:/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini"
+    # Apache on Alpine Container
+    # Docs: http://dockerfile.readthedocs.io/en/latest/content/DockerImages/dockerfiles/apache.html
+    webserver:
+        image: webdevops/apache:alpine
+        ports: ["80:80", "443:443"] # Remember to stop Apache/Nginx to use with Docker
+        volumes:
+            - "./src:/var/www/html"
+        environment: 
+            LOG_STDOUT: "/var/log/nginx.out"
+            LOG_STDERR: "/var/log/nginx.err"
+            WEB_DOCUMENT_ROOT: "/var/www/html/public"
+            WEB_DOCUMENT_INDEX: "index.php"
+            WEB_PHP_SOCKET: "php:9000"
+    # PostgreSQL 10.4 on Alpine
+    # Docs: https://hub.docker.com/_/postgres/
+    database:
+        image: postgres:10.4-alpine
+        # Only uncomment below if you want to connect to database from host machine
+        # ports: ["5432:5432"] 
+        volumes: 
+            - "xpence-db:/var/lib/postgresql/data"
+        environment: 
+            POSTGRES_DATABASE: "xpence"
+            POSTGRES_USER: "xpence"
+            POSTGRES_PASSWORD: "xpence"
+
+volumes:
+    xpence-db:
